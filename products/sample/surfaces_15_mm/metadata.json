@@ -1,0 +1,26 @@
+{
+  "name": "SURFACES 15 MM",
+  "category": "Sintered Stone",
+  "series": "Surface",
+  "sizes": [
+    "800X2400MM",
+    "800X3000MM"
+  ],
+  "body_type": "Standard",
+  "tags": [
+    "sintered stone",
+    "slab",
+    "tile",
+    "surface",
+    "mm",
+    "800x2400mm",
+    "800x3000mm"
+  ],
+  "description": "SURFACES 15 MM is a premium sintered stone slab from the Surface series. Available in 800X2400MM and 800X3000MM. Standard construction.",
+  "images": [
+    "application1.jpg",
+    "application2.jpg",
+    "application3.jpg",
+    "thumbnail.jpg"
+  ]
+}
