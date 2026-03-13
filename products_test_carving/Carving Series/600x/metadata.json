@@ -1,0 +1,12 @@
+{
+  "name": "600X",
+  "pages": [
+    15
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "pattern": "individual",
+  "thumbnail_size": "1057x683",
+  "application_size": "1057x683"
+}

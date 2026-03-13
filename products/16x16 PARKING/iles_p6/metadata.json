@@ -1,0 +1,12 @@
+{
+  "name": "@ILES P6",
+  "pages": [
+    6
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "segmentation_method": "layout_split",
+  "thumbnail_size": "2530x629",
+  "application_size": "2530x945"
+}

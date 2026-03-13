@@ -1,0 +1,13 @@
+{
+  "name": "NS SSE",
+  "pages": [
+    1
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "multi_image",
+  "thumbnail_size": "3300x4672",
+  "thumbnail_clip_confidence": 0.509,
+  "application_size": "3300x4672",
+  "application_clip_confidence": 0.987
+}

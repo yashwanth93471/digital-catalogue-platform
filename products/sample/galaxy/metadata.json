@@ -1,0 +1,12 @@
+{
+  "name": "GALAXY",
+  "pages": [
+    8
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "thumbnail_size": "1245x416",
+  "thumbnail_clip_confidence": 0.948,
+  "application_size": "1601x917",
+  "application_clip_confidence": 0.52
+}

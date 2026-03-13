@@ -1,0 +1,13 @@
+{
+  "name": "DIAMOND BLACK",
+  "pages": [
+    15
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "multi_image",
+  "thumbnail_size": "1242x414",
+  "thumbnail_clip_confidence": 0.956,
+  "application_size": "1601x918",
+  "application_clip_confidence": 0.949
+}

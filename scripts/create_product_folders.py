@@ -51,7 +51,7 @@ def create_product_folders(names_json: str, grouped_dir: str, products_dir: str)
         page_dir = os.path.join(grouped_dir, page_key)
 
         if not os.path.isdir(page_dir):
-            print(f"  {page_key} → {folder_name}/ — [SKIP] no images found")
+            print(f"  {page_key} -> {folder_name}/ -- [SKIP] no images found")
             continue
 
         product_dir = os.path.join(products_dir, folder_name)
@@ -67,7 +67,7 @@ def create_product_folders(names_json: str, grouped_dir: str, products_dir: str)
             files_copied += 1
 
         created += 1
-        print(f"  {page_key} → {folder_name}/ ({files_copied} file(s))")
+        print(f"  {page_key} -> {folder_name}/ ({files_copied} file(s))")
 
     print("-" * 55)
     print(f"[DONE] {created} product folders created in products/")

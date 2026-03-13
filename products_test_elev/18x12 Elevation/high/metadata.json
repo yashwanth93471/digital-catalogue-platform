@@ -1,0 +1,11 @@
+{
+  "name": "HIGH",
+  "pages": [
+    1
+  ],
+  "has_thumbnail": true,
+  "has_application": false,
+  "pdf_type": "flat_page",
+  "pattern": "paired",
+  "thumbnail_size": "1218x1232"
+}

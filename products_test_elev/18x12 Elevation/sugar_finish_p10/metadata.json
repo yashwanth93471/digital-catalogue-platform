@@ -1,0 +1,13 @@
+{
+  "name": "SUGAR FINISH P10",
+  "pages": [
+    10,
+    11
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "pattern": "paired",
+  "thumbnail_size": "933x966",
+  "application_size": "1785x1085"
+}

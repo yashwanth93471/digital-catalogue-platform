@@ -1,0 +1,13 @@
+{
+  "name": "SUGAR FINISH P26",
+  "pages": [
+    26,
+    27
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "pattern": "paired",
+  "thumbnail_size": "956x1017",
+  "application_size": "1716x1154"
+}

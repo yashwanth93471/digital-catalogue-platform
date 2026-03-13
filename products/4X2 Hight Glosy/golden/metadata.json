@@ -1,0 +1,12 @@
+{
+  "name": "GOLDEN",
+  "pages": [
+    2
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "segmentation_method": "layout_split",
+  "thumbnail_size": "1654x1052",
+  "application_size": "1654x1287"
+}

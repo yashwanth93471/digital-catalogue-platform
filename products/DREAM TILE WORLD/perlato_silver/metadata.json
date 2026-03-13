@@ -1,0 +1,13 @@
+{
+  "name": "PERLATO SILVER",
+  "pages": [
+    19,
+    20
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "thumbnail_size": "3256x4610",
+  "thumbnail_clip_confidence": 1.0,
+  "application_size": "3510x3094",
+  "application_clip_confidence": 0.943
+}

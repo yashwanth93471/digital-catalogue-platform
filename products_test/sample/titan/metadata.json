@@ -1,0 +1,11 @@
+{
+  "name": "TITAN",
+  "pages": [
+    19
+  ],
+  "has_thumbnail": true,
+  "has_application": false,
+  "pdf_type": "multi_image",
+  "thumbnail_size": "1528x3150",
+  "thumbnail_clip_confidence": 0.998
+}

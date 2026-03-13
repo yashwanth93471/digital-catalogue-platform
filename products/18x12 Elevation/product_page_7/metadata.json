@@ -1,0 +1,12 @@
+{
+  "name": "PRODUCT_PAGE_7",
+  "pages": [
+    7
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "segmentation_method": "whole_page",
+  "thumbnail_size": "1291x783",
+  "application_size": "2800x1700"
+}

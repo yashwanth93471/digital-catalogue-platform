@@ -147,7 +147,7 @@ def generate_metadata(pdf_path: str, names_json: str, products_dir: str) -> int:
         product_dir = os.path.join(products_dir, folder_name)
 
         if not os.path.isdir(product_dir):
-            print(f"  {folder_name}/ — [SKIP] folder not found")
+            print(f"  {folder_name}/ -- [SKIP] folder not found")
             continue
 
         # OCR the page for details
@@ -183,7 +183,7 @@ def generate_metadata(pdf_path: str, names_json: str, products_dir: str) -> int:
             json.dump(metadata, f, indent=2, ensure_ascii=False)
 
         count += 1
-        print(f"  {folder_name}/ → metadata.json  (series={series}, {len(sizes)} sizes, {len(tags)} tags)")
+        print(f"  {folder_name}/ -> metadata.json  (series={series}, {len(sizes)} sizes, {len(tags)} tags)")
 
     doc.close()
 

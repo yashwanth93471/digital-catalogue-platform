@@ -1,0 +1,12 @@
+{
+  "name": "COLORS",
+  "pages": [
+    12
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "thumbnail_size": "415x1243",
+  "thumbnail_clip_confidence": 0.925,
+  "application_size": "1601x917",
+  "application_clip_confidence": 0.382
+}

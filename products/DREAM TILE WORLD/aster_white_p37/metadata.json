@@ -1,0 +1,13 @@
+{
+  "name": "ASTER WHITE P37",
+  "pages": [
+    37,
+    38
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "thumbnail_size": "3256x4610",
+  "thumbnail_clip_confidence": 0.999,
+  "application_size": "3518x3100",
+  "application_clip_confidence": 0.928
+}

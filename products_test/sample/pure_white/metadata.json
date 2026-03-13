@@ -1,0 +1,13 @@
+{
+  "name": "PURE WHITE",
+  "pages": [
+    11
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "multi_image",
+  "thumbnail_size": "415x1243",
+  "thumbnail_clip_confidence": 0.987,
+  "application_size": "1601x916",
+  "application_clip_confidence": 0.51
+}

@@ -1,0 +1,13 @@
+{
+  "name": "ONYX DE AQUA",
+  "pages": [
+    15,
+    16
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "thumbnail_size": "3256x4610",
+  "thumbnail_clip_confidence": 0.967,
+  "application_size": "3484x3072",
+  "application_clip_confidence": 0.95
+}

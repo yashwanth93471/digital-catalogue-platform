@@ -7,8 +7,10 @@ and organizes them into named product folders with metadata.
 Steps:
   1. Extract images from PDF
   2. Group images by page
-  3. Select thumbnails
-  4. Extract product names (OCR)
+  2.5. Filter blank/background images
+  3. Select thumbnails (classify texture vs room scene)
+  3.5. Merge page pairs (thumbnail page + application page -> single product)
+  4. Extract product names (OCR, header-focused, brand-filtered)
   5. Create product folders
   6. Generate metadata
 
@@ -29,11 +31,13 @@ from config.settings import (
     CATALOGUES_DIR, IMAGES_RAW_DIR, IMAGES_GROUPED_DIR, PRODUCTS_DIR, LOGS_DIR,
 )
 
-# ─── Import pipeline modules ───────────────────────────────────
+# ---- Import pipeline modules ----
 from scripts.extract_images import extract_images
 from scripts.group_images import group_images
+from scripts.filter_images import filter_grouped_images
 from scripts.extract_product_names import extract_all_names
 from scripts.select_thumbnail import process_all as select_thumbnails
+from scripts.merge_page_pairs import merge_page_pairs
 from scripts.create_product_folders import create_product_folders, NAMES_JSON
 from scripts.generate_metadata import generate_metadata
 
@@ -94,15 +98,15 @@ def run_pipeline(pdf_path: str):
 
     # ── Clean previous outputs ──────────────────────────────────
     logger.info("")
-    logger.info("[0/6] Cleaning previous outputs...")
+    logger.info("[0/7] Cleaning previous outputs...")
     clean_output_dirs()
 
     # ── Step 1: Extract images ──────────────────────────────────
     logger.info("")
-    logger.info("[1/6] Extracting images from PDF...")
+    logger.info("[1/7] Extracting images from PDF...")
     step_start = time.time()
     image_count = extract_images(pdf_path, pdf_images_raw)
-    logger.info(f"  → {image_count} images extracted ({time.time() - step_start:.1f}s)")
+    logger.info(f"  -> {image_count} images extracted ({time.time() - step_start:.1f}s)")
 
     if image_count == 0:
         logger.error("No images extracted. Aborting.")
@@ -110,24 +114,40 @@ def run_pipeline(pdf_path: str):
 
     # ── Step 2: Group images by page ────────────────────────────
     logger.info("")
-    logger.info("[2/6] Grouping images by page...")
+    logger.info("[2/7] Grouping images by page...")
     step_start = time.time()
     groups = group_images(pdf_images_raw, pdf_images_grouped)
-    logger.info(f"  → {len(groups)} page groups ({time.time() - step_start:.1f}s)")
+    logger.info(f"  -> {len(groups)} page groups ({time.time() - step_start:.1f}s)")
+
+    # ── Step 2.5: Filter blank / background images ─────────────
+    logger.info("")
+    logger.info("[2.5/7] Filtering blank / background images...")
+    step_start = time.time()
+    filter_result = filter_grouped_images(pdf_images_grouped, delete=True)
+    removed_count = filter_result.get("total_removed", 0)
+    logger.info(f"  -> {removed_count} blank images removed ({time.time() - step_start:.1f}s)")
 
     # ── Step 3: Select thumbnails ───────────────────────────────
     logger.info("")
-    logger.info("[3/6] Selecting thumbnails...")
+    logger.info("[3/7] Selecting thumbnails...")
     step_start = time.time()
     select_thumbnails(pdf_images_grouped)
-    logger.info(f"  → Thumbnails selected ({time.time() - step_start:.1f}s)")
+    logger.info(f"  -> Thumbnails selected ({time.time() - step_start:.1f}s)")
+
+    # ── Step 3.5: Merge page pairs ──────────────────────────────
+    logger.info("")
+    logger.info("[3.5/7] Merging page pairs (thumbnail + application pages)...")
+    step_start = time.time()
+    merge_count, merged_app_pages = merge_page_pairs(pdf_images_grouped)
+    logger.info(f"  -> {merge_count} page pairs merged ({time.time() - step_start:.1f}s)")
 
     # ── Step 4: Extract product names (OCR) ─────────────────────
     logger.info("")
-    logger.info("[4/6] Extracting product names (OCR)...")
+    logger.info("[4/7] Extracting product names (OCR, header-focused)...")
     step_start = time.time()
-    product_names = extract_all_names(pdf_path, pdf_names_json)
-    logger.info(f"  → {len(product_names)} product names ({time.time() - step_start:.1f}s)")
+    product_names = extract_all_names(pdf_path, pdf_names_json,
+                                       skip_pages=merged_app_pages)
+    logger.info(f"  -> {len(product_names)} product names ({time.time() - step_start:.1f}s)")
 
     if not product_names:
         logger.error("No product names extracted. Aborting.")
@@ -135,17 +155,17 @@ def run_pipeline(pdf_path: str):
 
     # ── Step 5: Create product folders ──────────────────────────
     logger.info("")
-    logger.info("[5/6] Creating product folders...")
+    logger.info("[5/7] Creating product folders...")
     step_start = time.time()
     folder_count = create_product_folders(pdf_names_json, pdf_images_grouped, pdf_products)
-    logger.info(f"  → {folder_count} product folders ({time.time() - step_start:.1f}s)")
+    logger.info(f"  -> {folder_count} product folders ({time.time() - step_start:.1f}s)")
 
     # ── Step 6: Generate metadata ───────────────────────────────
     logger.info("")
-    logger.info("[6/6] Generating metadata...")
+    logger.info("[6/7] Generating metadata...")
     step_start = time.time()
     meta_count = generate_metadata(pdf_path, pdf_names_json, pdf_products)
-    logger.info(f"  → {meta_count} metadata files ({time.time() - step_start:.1f}s)")
+    logger.info(f"  -> {meta_count} metadata files ({time.time() - step_start:.1f}s)")
 
     # ── Summary ─────────────────────────────────────────────────
     total_time = time.time() - pipeline_start
@@ -156,6 +176,7 @@ def run_pipeline(pdf_path: str):
     logger.info(f"  PDF name         : {pdf_name}")
     logger.info(f"  Images extracted : {image_count}")
     logger.info(f"  Page groups      : {len(groups)}")
+    logger.info(f"  Page pairs merged: {merge_count}")
     logger.info(f"  Product names    : {len(product_names)}")
     logger.info(f"  Product folders  : {folder_count}")
     logger.info(f"  Metadata files   : {meta_count}")

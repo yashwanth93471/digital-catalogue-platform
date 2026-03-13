@@ -1,0 +1,13 @@
+{
+  "name": "SAGA STONE HIMALAYA",
+  "pages": [
+    16
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "multi_image",
+  "thumbnail_size": "1243x414",
+  "thumbnail_clip_confidence": 0.857,
+  "application_size": "1601x916",
+  "application_clip_confidence": 0.686
+}

@@ -16,9 +16,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import fitz  # PyMuPDF
 from config.settings import CATALOGUES_DIR, IMAGES_RAW_DIR
 
-# ─── Configuration ──────────────────────────────────────────────
-MIN_WIDTH = 500
-MIN_HEIGHT = 500
+# ---- Configuration ---------------------------------------------------------
+MIN_WIDTH = 300
+MIN_HEIGHT = 300
 DEFAULT_PDF = os.path.join(CATALOGUES_DIR, "sample.pdf")
 
 

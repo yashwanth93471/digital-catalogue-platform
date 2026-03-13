@@ -1,0 +1,13 @@
+{
+  "name": "PRODUCT_PAGE_3",
+  "pages": [
+    3
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "multi_image",
+  "thumbnail_size": "1042x1475",
+  "thumbnail_clip_confidence": 0.987,
+  "application_size": "1042x1475",
+  "application_clip_confidence": 0.759
+}

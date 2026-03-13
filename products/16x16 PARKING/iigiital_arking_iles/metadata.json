@@ -1,0 +1,12 @@
+{
+  "name": "@IIGIITAL @ARKING @ILES",
+  "pages": [
+    1
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "segmentation_method": "layout_split",
+  "thumbnail_size": "2530x787",
+  "application_size": "2530x787"
+}

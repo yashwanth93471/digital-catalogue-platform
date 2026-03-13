@@ -1,0 +1,13 @@
+{
+  "name": "SUGAR",
+  "pages": [
+    17,
+    18
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "thumbnail_size": "2400x7200",
+  "thumbnail_clip_confidence": 0.997,
+  "application_size": "3840x2160",
+  "application_clip_confidence": 0.899
+}

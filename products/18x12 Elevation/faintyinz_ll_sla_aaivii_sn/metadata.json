@@ -1,0 +1,11 @@
+{
+  "name": "FAINTYINZ LL SLA AAIVII SN",
+  "pages": [
+    32
+  ],
+  "has_thumbnail": true,
+  "has_application": false,
+  "pdf_type": "flat_page",
+  "segmentation_method": "whole_page",
+  "thumbnail_size": "2800x1700"
+}

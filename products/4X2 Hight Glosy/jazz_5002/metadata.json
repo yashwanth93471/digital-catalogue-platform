@@ -1,0 +1,12 @@
+{
+  "name": "JAZZ 5002",
+  "pages": [
+    3
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "segmentation_method": "contour",
+  "thumbnail_size": "1063x1318",
+  "application_size": "1012x667"
+}

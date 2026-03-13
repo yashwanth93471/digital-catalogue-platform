@@ -1,0 +1,13 @@
+{
+  "name": "STATUARIO ICE",
+  "pages": [
+    6
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "multi_image",
+  "thumbnail_size": "1244x416",
+  "thumbnail_clip_confidence": 0.998,
+  "application_size": "1601x918",
+  "application_clip_confidence": 0.39
+}

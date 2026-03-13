@@ -1,0 +1,12 @@
+{
+  "name": "PRODUCT_PAGE_9",
+  "pages": [
+    9
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "segmentation_method": "layout_split",
+  "thumbnail_size": "2800x765",
+  "application_size": "2800x935"
+}
