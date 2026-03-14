@@ -1,97 +1,134 @@
 """
-Extract embedded images from PDF catalogues using PyMuPDF.
+Extract images from PDF catalogues using Unstructured layout parsing.
 
-Usage:
-    python scripts/extract_images.py
-    python scripts/extract_images.py path/to/catalogue.pdf
+Pipeline stage:
+catalogues → images_raw
 """
 
-import sys
 import os
+import sys
+import json
 import time
+from tqdm import tqdm
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import fitz  # PyMuPDF
 from config.settings import CATALOGUES_DIR, IMAGES_RAW_DIR
 
-# ---- Configuration ---------------------------------------------------------
+from unstructured.partition.pdf import partition_pdf
+from unstructured.documents.elements import Image
+
+# ---------------------------------------------------
+# Configuration
+# ---------------------------------------------------
+
 MIN_WIDTH = 300
 MIN_HEIGHT = 300
-DEFAULT_PDF = os.path.join(CATALOGUES_DIR, "sample.pdf")
+
+# ---------------------------------------------------
+# Helper function
+# ---------------------------------------------------
+
+def save_image(element, output_dir, index):
+
+    image_bytes = element.metadata.image_base64
+
+    if not image_bytes:
+        return None
+
+    import base64
+
+    img_data = base64.b64decode(image_bytes)
+
+    filename = f"img_{index:05d}.png"
+    path = os.path.join(output_dir, filename)
+
+    with open(path, "wb") as f:
+        f.write(img_data)
+
+    return filename
 
 
-def extract_images(pdf_path: str, output_dir: str) -> int:
-    """Extract all embedded images from a PDF, skipping small ones."""
-    if not os.path.isfile(pdf_path):
-        print(f"[ERROR] PDF not found: {pdf_path}")
-        return 0
+# ---------------------------------------------------
+# Main extraction logic
+# ---------------------------------------------------
 
-    os.makedirs(output_dir, exist_ok=True)
+def extract_images(pdf_path):
 
-    doc = fitz.open(pdf_path)
-    total_pages = len(doc)
-    total_saved = 0
-    total_skipped = 0
+    os.makedirs(IMAGES_RAW_DIR, exist_ok=True)
 
-    print(f"[INFO] Opened: {os.path.basename(pdf_path)}")
-    print(f"[INFO] Pages : {total_pages}")
-    print(f"[INFO] Output: {output_dir}")
-    print(f"[INFO] Min size: {MIN_WIDTH}x{MIN_HEIGHT}px")
-    print("-" * 50)
+    print(f"\n[INFO] Processing: {os.path.basename(pdf_path)}")
 
     start = time.time()
 
-    for page_num in range(total_pages):
-        page = doc[page_num]
-        image_list = page.get_images(full=True)
+    elements = partition_pdf(
+        filename=pdf_path,
+        extract_images_in_pdf=True,
+        infer_table_structure=True,
+        strategy="hi_res"
+    )
 
-        if not image_list:
-            continue
+    saved = 0
+    metadata = []
 
-        img_counter = 0
+    for i, element in enumerate(tqdm(elements)):
 
-        for img_index, img_info in enumerate(image_list):
-            xref = img_info[0]
+        if isinstance(element, Image):
 
-            try:
-                base_image = doc.extract_image(xref)
-            except Exception as e:
-                print(f"  [WARN] Page {page_num + 1}, image {img_index + 1}: extraction failed ({e})")
+            filename = save_image(element, IMAGES_RAW_DIR, saved)
+
+            if filename is None:
                 continue
 
-            width = base_image["width"]
-            height = base_image["height"]
+            metadata.append({
+                "filename": filename,
+                "page": element.metadata.page_number
+            })
 
-            if width < MIN_WIDTH or height < MIN_HEIGHT:
-                total_skipped += 1
-                continue
-
-            img_counter += 1
-            ext = base_image["ext"]
-            filename = f"page_{page_num + 1:03d}_img_{img_counter:02d}.{ext}"
-            filepath = os.path.join(output_dir, filename)
-
-            with open(filepath, "wb") as f:
-                f.write(base_image["image"])
-
-            total_saved += 1
-
-        if image_list:
-            print(f"  Page {page_num + 1:>4d}/{total_pages} — {img_counter} image(s) saved")
+            saved += 1
 
     elapsed = time.time() - start
-    doc.close()
 
-    print("-" * 50)
-    print(f"[DONE] Saved  : {total_saved} images")
-    print(f"[DONE] Skipped: {total_skipped} (below {MIN_WIDTH}x{MIN_HEIGHT})")
-    print(f"[DONE] Time   : {elapsed:.1f}s")
+    print(f"[DONE] Saved {saved} images in {elapsed:.2f}s")
 
-    return total_saved
+    return metadata
 
+
+# ---------------------------------------------------
+# Batch catalogue processing
+# ---------------------------------------------------
+
+def process_catalogues():
+
+    pdfs = [
+        f for f in os.listdir(CATALOGUES_DIR)
+        if f.lower().endswith(".pdf")
+    ]
+
+    if not pdfs:
+        print("[WARN] No PDFs found in catalogues/")
+        return
+
+    all_metadata = []
+
+    for pdf in pdfs:
+
+        path = os.path.join(CATALOGUES_DIR, pdf)
+
+        metadata = extract_images(path)
+
+        all_metadata.extend(metadata)
+
+    meta_path = os.path.join(IMAGES_RAW_DIR, "images_metadata.json")
+
+    with open(meta_path, "w") as f:
+        json.dump(all_metadata, f, indent=2)
+
+    print(f"[INFO] Metadata written: {meta_path}")
+
+
+# ---------------------------------------------------
 
 if __name__ == "__main__":
-    pdf_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_PDF
-    extract_images(pdf_path, IMAGES_RAW_DIR)
+    process_catalogues()
