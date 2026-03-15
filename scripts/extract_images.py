@@ -11,7 +11,7 @@ catalogues → images_raw → tile_crops
 """
 
 # ===============================
-# Install dependencies (Colab)
+# Install dependencies 
 # ===============================
 
 # !pip install pymupdf pypdfium2 opencv-python pillow tqdm
