@@ -1,97 +1,238 @@
 """
-Extract embedded images from PDF catalogues using PyMuPDF.
+Robust Catalogue Image Extraction Pipeline
 
-Usage:
-    python scripts/extract_images.py
-    python scripts/extract_images.py path/to/catalogue.pdf
+Handles:
+- embedded PDF images
+- full page rendering
+- granite / marble / tile texture detection
+
+Pipeline:
+catalogues → images_raw → tile_crops
 """
 
-import sys
+# ===============================
+# Install dependencies 
+# ===============================
+
+# !pip install pymupdf pypdfium2 opencv-python pillow tqdm
+
+
+# ===============================
+# Imports
+# ===============================
+
 import os
-import time
-
-# Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import fitz  # PyMuPDF
-from config.settings import CATALOGUES_DIR, IMAGES_RAW_DIR
-
-# ---- Configuration ---------------------------------------------------------
-MIN_WIDTH = 300
-MIN_HEIGHT = 300
-DEFAULT_PDF = os.path.join(CATALOGUES_DIR, "sample.pdf")
+import json
+import fitz
+import cv2
+import numpy as np
+import pypdfium2 as pdfium
+from tqdm import tqdm
+from PIL import Image
 
 
-def extract_images(pdf_path: str, output_dir: str) -> int:
-    """Extract all embedded images from a PDF, skipping small ones."""
-    if not os.path.isfile(pdf_path):
-        print(f"[ERROR] PDF not found: {pdf_path}")
-        return 0
+# ===============================
+# Config
+# ===============================
 
-    os.makedirs(output_dir, exist_ok=True)
+CATALOGUES_DIR = "catalogues"
+IMAGES_RAW_DIR = "images_raw"
+TILES_DIR = "tiles"
+
+MIN_TILE_WIDTH = 200
+MIN_TILE_HEIGHT = 200
+
+os.makedirs(IMAGES_RAW_DIR, exist_ok=True)
+os.makedirs(TILES_DIR, exist_ok=True)
+
+
+# ===============================
+# Extract embedded images
+# ===============================
+
+def extract_embedded_images(pdf_path):
 
     doc = fitz.open(pdf_path)
-    total_pages = len(doc)
-    total_saved = 0
-    total_skipped = 0
 
-    print(f"[INFO] Opened: {os.path.basename(pdf_path)}")
-    print(f"[INFO] Pages : {total_pages}")
-    print(f"[INFO] Output: {output_dir}")
-    print(f"[INFO] Min size: {MIN_WIDTH}x{MIN_HEIGHT}px")
-    print("-" * 50)
+    metadata = []
+    count = 0
 
-    start = time.time()
+    for page_index in range(len(doc)):
 
-    for page_num in range(total_pages):
-        page = doc[page_num]
+        page = doc.load_page(page_index)
+
         image_list = page.get_images(full=True)
 
-        if not image_list:
-            continue
+        for img in image_list:
 
-        img_counter = 0
+            xref = img[0]
 
-        for img_index, img_info in enumerate(image_list):
-            xref = img_info[0]
+            base_image = doc.extract_image(xref)
 
-            try:
-                base_image = doc.extract_image(xref)
-            except Exception as e:
-                print(f"  [WARN] Page {page_num + 1}, image {img_index + 1}: extraction failed ({e})")
-                continue
-
-            width = base_image["width"]
-            height = base_image["height"]
-
-            if width < MIN_WIDTH or height < MIN_HEIGHT:
-                total_skipped += 1
-                continue
-
-            img_counter += 1
+            image_bytes = base_image["image"]
             ext = base_image["ext"]
-            filename = f"page_{page_num + 1:03d}_img_{img_counter:02d}.{ext}"
-            filepath = os.path.join(output_dir, filename)
 
-            with open(filepath, "wb") as f:
-                f.write(base_image["image"])
+            filename = f"embedded_{count:05d}.{ext}"
 
-            total_saved += 1
+            path = os.path.join(IMAGES_RAW_DIR, filename)
 
-        if image_list:
-            print(f"  Page {page_num + 1:>4d}/{total_pages} — {img_counter} image(s) saved")
+            with open(path, "wb") as f:
+                f.write(image_bytes)
 
-    elapsed = time.time() - start
-    doc.close()
+            metadata.append({
+                "file": filename,
+                "page": page_index + 1,
+                "type": "embedded"
+            })
 
-    print("-" * 50)
-    print(f"[DONE] Saved  : {total_saved} images")
-    print(f"[DONE] Skipped: {total_skipped} (below {MIN_WIDTH}x{MIN_HEIGHT})")
-    print(f"[DONE] Time   : {elapsed:.1f}s")
+            count += 1
 
-    return total_saved
+    return metadata
 
+
+# ===============================
+# Render PDF pages
+# ===============================
+
+def render_pdf_pages(pdf_path):
+
+    pdf = pdfium.PdfDocument(pdf_path)
+
+    pages = []
+
+    for i in range(len(pdf)):
+
+        page = pdf[i]
+
+        bitmap = page.render(scale=3)
+
+        pil_image = bitmap.to_pil()
+
+        pages.append(pil_image)
+
+    return pages
+
+
+# ===============================
+# Detect tile textures
+# ===============================
+
+def detect_tiles(page_image, page_number):
+
+    img = np.array(page_image)
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    blur = cv2.GaussianBlur(gray, (5,5), 0)
+
+    thresh = cv2.threshold(
+        blur,
+        0,
+        255,
+        cv2.THRESH_BINARY + cv2.THRESH_OTSU
+    )[1]
+
+    contours,_ = cv2.findContours(
+        thresh,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    tiles_metadata = []
+    tile_count = 0
+
+    for c in contours:
+
+        x,y,w,h = cv2.boundingRect(c)
+
+        if w > MIN_TILE_WIDTH and h > MIN_TILE_HEIGHT:
+
+            crop = img[y:y+h, x:x+w]
+
+            filename = f"tile_p{page_number}_{tile_count}.png"
+
+            path = os.path.join(TILES_DIR, filename)
+
+            cv2.imwrite(path, crop)
+
+            tiles_metadata.append({
+                "file": filename,
+                "page": page_number,
+                "type": "tile_crop"
+            })
+
+            tile_count += 1
+
+    return tiles_metadata
+
+
+# ===============================
+# Process a single PDF
+# ===============================
+
+def process_pdf(pdf_path):
+
+    print(f"\nProcessing: {os.path.basename(pdf_path)}")
+
+    metadata = []
+
+    # 1️⃣ Embedded images
+    embedded = extract_embedded_images(pdf_path)
+
+    metadata.extend(embedded)
+
+    # 2️⃣ Page rendering
+    pages = render_pdf_pages(pdf_path)
+
+    # 3️⃣ Tile detection
+    for i,page in enumerate(pages):
+
+        tiles = detect_tiles(page, i+1)
+
+        metadata.extend(tiles)
+
+    return metadata
+
+
+# ===============================
+# Batch processing
+# ===============================
+
+def process_catalogues():
+
+    pdfs = [
+        f for f in os.listdir(CATALOGUES_DIR)
+        if f.lower().endswith(".pdf")
+    ]
+
+    if not pdfs:
+
+        print("No PDFs found.")
+        return
+
+    all_metadata = []
+
+    for pdf in tqdm(pdfs):
+
+        pdf_path = os.path.join(CATALOGUES_DIR, pdf)
+
+        metadata = process_pdf(pdf_path)
+
+        all_metadata.extend(metadata)
+
+    meta_file = os.path.join(IMAGES_RAW_DIR, "images_metadata.json")
+
+    with open(meta_file, "w") as f:
+
+        json.dump(all_metadata, f, indent=2)
+
+    print(f"\nDone. Metadata saved to {meta_file}")
+
+
+# ===============================
+# Run pipeline
+# ===============================
 
 if __name__ == "__main__":
-    pdf_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_PDF
-    extract_images(pdf_path, IMAGES_RAW_DIR)
+
+    process_catalogues()
