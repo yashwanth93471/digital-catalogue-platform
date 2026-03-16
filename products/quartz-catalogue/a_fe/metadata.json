@@ -1,0 +1,12 @@
+{
+  "name": "A FE",
+  "pages": [
+    26
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "pattern": "individual",
+  "thumbnail_size": "1374x1674",
+  "application_size": "1374x1674"
+}

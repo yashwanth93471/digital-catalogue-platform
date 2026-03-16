@@ -1,0 +1,12 @@
+{
+  "name": "€ POLISH",
+  "pages": [
+    20
+  ],
+  "has_thumbnail": true,
+  "has_application": true,
+  "pdf_type": "flat_page",
+  "pattern": "individual",
+  "thumbnail_size": "1234x950",
+  "application_size": "1234x950"
+}

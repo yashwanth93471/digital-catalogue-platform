@@ -1,0 +1,11 @@
+{
+  "name": "BEIGE",
+  "pages": [
+    24
+  ],
+  "has_thumbnail": true,
+  "has_application": false,
+  "pdf_type": "flat_page",
+  "pattern": "individual",
+  "thumbnail_size": "1244x476"
+}
